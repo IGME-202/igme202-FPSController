@@ -1,5 +1,5 @@
 {
-  "name": "com.igme202.fpscontroller",
+  "name": "com.igme202.fpscontrollerim",
   "version": "2.0.1",
   "displayName": "FPS Controller IM",
   "description": "This package contains an FPS controller that uses Unity's old InputManager and is for IGME 202.",
