@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// A modifation of the depreicated Standard Asset Package FPSControler
@@ -14,13 +13,11 @@ public class FPSController : MonoBehaviour
     [SerializeField] private float m_GravityMultiplier = 2;
     
 
-
-    private Vector2 m_LookInput;
     [SerializeField] private FPSMouseLook m_MouseLook = null;
     private Camera m_Camera;
 
 
-    private Vector2 m_MoveInput;
+    [SerializeField] private Vector2 m_MoveInput;
     [SerializeField] private bool m_IsWalking = false;
     [SerializeField] private float m_WalkSpeed = 5;
     [SerializeField] private float m_RunSpeed = 10;
@@ -34,6 +31,10 @@ public class FPSController : MonoBehaviour
     private bool m_Jump;
     [SerializeField] private float m_JumpSpeed = 10;
     private bool m_Jumping;
+
+    const string k_INPUT_AXIS_HORIZONTAL = "Horizontal";
+    const string k_INPUT_AXIS_VERTICAL = "Vertical";
+    const string k_INPUT_AXIS_JUMP = "Jump";
 
 
     // Start is called before the first frame update
@@ -51,9 +52,13 @@ public class FPSController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(m_LookInput != Vector2.zero)
-            m_MouseLook.LookRotation(transform, m_Camera.transform, m_LookInput);
+        m_MouseLook.LookRotation(transform, m_Camera.transform);
 
+        //  Get jump input
+        if (!m_Jump && !m_Jumping)
+        {
+            m_Jump = Input.GetAxis(k_INPUT_AXIS_JUMP) > 0;
+        }
         if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
         {
             m_MoveDir.y = 0f;
@@ -65,6 +70,8 @@ public class FPSController : MonoBehaviour
         }
 
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
+
+        m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
     }
 
     private void FixedUpdate()
@@ -72,6 +79,9 @@ public class FPSController : MonoBehaviour
         float speed;
         // set the desired speed to be walking or running
         speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
+
+        //  Get move input from the Input Manager
+        m_MoveInput = new Vector2(Input.GetAxis(k_INPUT_AXIS_HORIZONTAL), Input.GetAxis(k_INPUT_AXIS_VERTICAL));
 
         // normalize input if it exceeds 1 in combined length:
         if (m_MoveInput.sqrMagnitude > 1)
@@ -141,38 +151,5 @@ public class FPSController : MonoBehaviour
             return;
         }
         body.AddForceAtPosition(m_CharacterController.velocity * 0.1f, hit.point, ForceMode.Impulse);
-    }
-
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        m_MoveInput = context.ReadValue<Vector2>();
-    }
-
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        m_LookInput = context.ReadValue<Vector2>();
-    }
-
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (!m_Jump && context.phase == InputActionPhase.Started)
-        {
-            m_Jump = true;
-        }
-    }
-
-    public void OnSprint(InputAction.CallbackContext context)
-    {
-        switch(context.phase)
-        {
-            case InputActionPhase.Started:
-            case InputActionPhase.Performed:
-                m_IsWalking = false;
-                break;
-            case InputActionPhase.Canceled:
-            case InputActionPhase.Disabled:
-                m_IsWalking = true;
-                break;
-        }
     }
 }

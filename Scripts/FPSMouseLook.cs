@@ -26,10 +26,10 @@ public class FPSMouseLook
     }
 
 
-    public void LookRotation(Transform character, Transform camera, Vector2 lookInput)
+    public void LookRotation(Transform character, Transform camera)
     {
-        float yRot = lookInput.x * XSensitivity;
-        float xRot = lookInput.y * YSensitivity;
+        float yRot = Input.GetAxis("Mouse X") * XSensitivity;
+        float xRot = Input.GetAxis("Mouse Y") * YSensitivity;
 
         m_CharacterTargetRot *= Quaternion.Euler(0f, yRot, 0f);
         m_CameraTargetRot *= Quaternion.Euler(-xRot, 0f, 0f);
